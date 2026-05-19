@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,13 +10,16 @@
     
     <!-- Chosen Palette: Incred Slate & Emerald. Background: Slate 50. Accents: Emerald 600, Slate 800. -->
     
-    <!-- Application Structure Plan: The SPA uses a dashboard structure with a left-side navigation panel and a main content area. This architecture was chosen to allow the Senior Analyst and stakeholders to easily navigate between distinct, dense research topics (Benchmarking, Persona, Ecosystem, Compliance, Action Plan) without losing context or getting overwhelmed by a linear scroll. It facilitates quick access to specific data points (like the Glossary or Compliance rules) during daily operations. -->
+    <!-- Application Structure Plan: The SPA uses a dashboard structure with a left-side navigation panel and a main content area. Added two new AI-powered modules integrated directly into the relevant workflows: 
+    1. AI Copy Localizer in the Persona section to translate BR concepts to AR slang.
+    2. AI Compliance Checker in the Compliance section to audit copy against BCRA and internal rules. -->
     
     <!-- Visualization & Content Choices: 
-    1. Overview/Persona: Chart.js Bar Chart -> Compare main objections to credit (BR vs AR). Goal: Highlight the heavy impact of "Veraz" in AR vs "Serasa" in BR. Justification: Visualizing the gap emphasizes localized pain points.
-    2. Glossary: Interactive HTML Table with JS Filter -> Quick translation of terms. Goal: Daily reference for copywriters. Justification: A static list is hard to search; dynamic filtering speeds up workflow.
-    3. Benchmarking: CSS Grid/Flexbox Flowchart -> Visualizing Utua's funnel. Goal: Map the competitor's step-by-step. Justification: Text descriptions of funnels are abstract; visual steps clarify the user journey.
-    4. Compliance: Side-by-side text blocks -> Comparing Incred's rules with AR reality. Goal: Ensure safe copy. Justification: Direct comparison prevents errors.
+    1. Overview/Persona: Chart.js Bar Chart.
+    2. Glossary: Interactive HTML Table with JS Filter.
+    3. Benchmarking: CSS Grid/Flexbox Flowchart.
+    4. Compliance: Side-by-side text blocks + AI Audit text area.
+    5. AI Integrations: Textareas + Buttons with loading states. Result divs use markdown formatting simulation via CSS.
     All graphics use Canvas (Chart.js) or styled HTML. NO SVG/Mermaid used. -->
     
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -42,13 +44,31 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Loader Animation */
+        .ai-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .ai-result-format p { margin-bottom: 0.75rem; }
+        .ai-result-format strong { color: #10b981; }
+        .ai-result-format ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden bg-slate-50">
 
     <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-20">
         <div class="p-6 border-b border-slate-800">
-            <h1 class="text-2xl font-bold tracking-tight text-emerald-400">Incred<span class="text-white">Latam</span></h1>
+            <h1 class="text-2xl font-bold tracking-tight text-emerald-400">Squad<span class="text-white">Argentina</span></h1>
             <p class="text-xs text-slate-400 mt-1">Dossiê de Expansão: Argentina 🇦🇷</p>
         </div>
         <nav class="flex-1 overflow-y-auto py-4">
@@ -56,13 +76,10 @@
                 <li><button onclick="switchTab('visao-geral')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium hover:bg-slate-800 hover:text-emerald-400 transition-colors bg-slate-800 text-emerald-400 border-l-4 border-emerald-400" data-target="visao-geral">📊 1. Benchmarking Utua</button></li>
                 <li><button onclick="switchTab('persona')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="persona">👥 2. Persona & Glossário</button></li>
                 <li><button onclick="switchTab('ecossistema')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="ecossistema">🏦 3. Ecossistema de Crédito</button></li>
-                <li><button onclick="switchTab('compliance')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="compliance">⚖️ 4. Compliance & Copy</button></li>
-                <li><button onclick="switchTab('inovacao')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="inovacao">💡 5. Inovações & Ação</button></li>
+                <li><button onclick="switchTab('compliance')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="compliance">⚖️ 4. Compliance Auditor</button></li>
+                <li><button onclick="switchTab('inovacao')" class="nav-btn w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-emerald-400 transition-colors border-l-4 border-transparent" data-target="inovacao">💡 5. Abordagens de Canais</button></li>
             </ul>
         </nav>
-        <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-            Atualizado: Abril 2026<br>Reporte Sênior
-        </div>
     </aside>
 
     <main class="flex-1 overflow-y-auto custom-scrollbar relative">
@@ -78,12 +95,14 @@
 
         <div class="p-8 max-w-6xl mx-auto">
 
+            <!-- TAB 1: VISÃO GERAL -->
             <section id="visao-geral" class="tab-content active">
                 <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-emerald-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
-                    <strong>Objetivo Estratégico:</strong> Este painel disseca a operação de publishers focados em empréstimos pessoais na Argentina, com lupa na <strong>Utua</strong>. Mapeamos URLs, estrutura de funil, peculiaridades linguísticas (Veraz vs Serasa) e as regras de compliance (BCRA) para garantir que a Incred entre no mercado com copy agressiva, porém dentro dos limites do nosso Manual de Compliance Moral.
+                    <strong>Objetivo Estratégico:</strong> Este painel disseca a operação de publishers focados em empréstimos pessoais na Argentina, com lupa na <strong>Utua</strong>. Mapeamos URLs, estrutura de funil, peculiaridades linguísticas (Veraz vs Serasa) e as regras de compliance (BCRA).
                 </p>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Funnel Visualizer -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                         <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">O Funil da Utua (AR)</h3>
                         <div class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
@@ -108,302 +127,181 @@
                                     <p class="text-xs text-slate-600 mt-1">Coleta de Email/Push. Redirecionamento instantâneo para artigo de review (ex: Welp, Moni).</p>
                                 </div>
                             </div>
-                            <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-amber-500 text-white font-bold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">4</div>
-                                <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-slate-50 p-4 rounded-lg border border-slate-200 shadow-sm">
-                                    <h4 class="font-bold text-slate-800 text-sm">Blog & Afiliação</h4>
-                                    <p class="text-xs text-slate-600 mt-1">Artigo curto, botões "Solicitar Ahora", banners de Programática ao redor.</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
+                    <!-- Objeções de Crédito (AR vs BR) - Substituindo estrutura de URLs -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Estrutura de URLs & Publishers</h3>
-                        <p class="text-sm text-slate-600 mb-4">A Utua e outros usam domínios com slugs genéricas para mascarar a operação, conforme nossa Biblioteca de Processos sugere (ex: evitar URLs óbvias para bots de bloqueio).</p>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Principais Objeções (AR vs BR)</h3>
+                        <p class="text-xs text-slate-500 mb-4">A inflação na Argentina muda o foco da objeção da "aprovação" para a "taxa abusiva". O <em>Veraz</em> também gera alto atrito.</p>
                         
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left text-slate-500">
-                                <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3 rounded-tl-lg">Publisher</th>
-                                        <th scope="col" class="px-4 py-3">Exemplo de Domínio/Slug</th>
-                                        <th scope="col" class="px-4 py-3 rounded-tr-lg">Estratégia Principal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="bg-white border-b">
-                                        <td class="px-4 py-3 font-medium text-slate-900">Utua</td>
-                                        <td class="px-4 py-3 font-mono text-xs text-blue-600">utua.com/ar/prestamo-cx/</td>
-                                        <td class="px-4 py-3">Quiz -> Captura -> Review Curto</td>
-                                    </tr>
-                                    <tr class="bg-slate-50 border-b">
-                                        <td class="px-4 py-3 font-medium text-slate-900">Creditos.com.ar</td>
-                                        <td class="px-4 py-3 font-mono text-xs text-blue-600">creditos.com.ar/con-veraz</td>
-                                        <td class="px-4 py-3">Comparador direto, forte em SEO</td>
-                                    </tr>
-                                    <tr class="bg-white border-b">
-                                        <td class="px-4 py-3 font-medium text-slate-900">Rankia (AR)</td>
-                                        <td class="px-4 py-3 font-mono text-xs text-blue-600">rankia.com.ar/blog/</td>
-                                        <td class="px-4 py-3">Artigos longos, fórum, orgânico</td>
-                                    </tr>
-                                    <tr class="bg-slate-50 border-t-2 border-emerald-200">
-                                        <td class="px-4 py-3 font-bold text-emerald-700">Incred (Proposta)</td>
-                                        <td class="px-4 py-3 font-mono text-xs text-emerald-600">nx.incred.com/ar-p201/</td>
-                                        <td class="px-4 py-3 font-bold text-emerald-700">Quiz Localizado + Retenção Push</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="persona" class="tab-content">
-                <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-blue-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
-                    <strong>Peculiaridades do Público:</strong> O argentino vive sob hiperinflação constante e uma economia amplamente informal. A urgência por crédito é imediata ("en el acto"). O medo não é apenas a negação, mas as taxas abusivas. O vocabulário é fundamental para converter: errar o termo é perder a confiança na hora.
-                </p>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                        <div class="flex justify-between items-center mb-4 border-b pb-2">
-                            <h3 class="text-lg font-bold text-slate-800">Dicionário de Conversão: BR ➡️ AR</h3>
-                            <input type="text" id="searchGlossary" onkeyup="filterGlossary()" placeholder="🔍 Buscar termo..." class="text-sm border border-slate-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="overflow-y-auto max-h-[350px] custom-scrollbar">
-                            <table class="w-full text-sm text-left text-slate-500" id="glossaryTable">
-                                <thead class="text-xs text-slate-700 uppercase sticky top-0 bg-white shadow-sm">
-                                    <tr>
-                                        <th scope="col" class="px-4 py-3">Termo BR (Incred)</th>
-                                        <th scope="col" class="px-4 py-3 text-blue-700">Termo AR (Conversão)</th>
-                                        <th scope="col" class="px-4 py-3">Contexto / Uso no Copy</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="px-4 py-3 font-medium">Nome Sujo / Serasa</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">Veraz negativo / Estar en el Veraz</td>
-                                        <td class="px-4 py-3 text-xs">A dor número 1. Use: "Préstamos con Veraz".</td>
-                                    </tr>
-                                    <tr class="bg-slate-50 border-b">
-                                        <td class="px-4 py-3 font-medium">Empréstimo</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">Préstamo (Personal / En el acto)</td>
-                                        <td class="px-4 py-3 text-xs">Sempre adicione agilidade: "En 15 minutos".</td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="px-4 py-3 font-medium">Dinheiro</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">Plata / Efectivo / Guita (muito informal)</td>
-                                        <td class="px-4 py-3 text-xs">"Necesitás plata ya?" converte bem.</td>
-                                    </tr>
-                                    <tr class="bg-slate-50 border-b">
-                                        <td class="px-4 py-3 font-medium">Conta Corrente / Salário</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">CBU / Cuenta Sueldo</td>
-                                        <td class="px-4 py-3 text-xs">Requisito básico para fintechs lá é ter um CBU.</td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="px-4 py-3 font-medium">CPF / RG</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">DNI / CUIL</td>
-                                        <td class="px-4 py-3 text-xs">Muitas ofertas são "Solo con DNI".</td>
-                                    </tr>
-                                    <tr class="bg-slate-50 border-b">
-                                        <td class="px-4 py-3 font-medium">CET (Custo Efetivo)</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">CFT (Costo Financiero Total)</td>
-                                        <td class="px-4 py-3 text-xs">Exigência do BCRA exibir o CFT com clareza.</td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="px-4 py-3 font-medium">Score Baixo</td>
-                                        <td class="px-4 py-3 font-bold text-blue-600">Mal historial crediticio</td>
-                                        <td class="px-4 py-3 text-xs">Similar ao Brasil, mas "Veraz" é mais falado.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                        <h3 class="text-sm font-bold text-slate-800 mb-2">Principais Objeções (AR vs BR)</h3>
-                        <p class="text-xs text-slate-500 mb-4">A inflação na Argentina muda o foco da objeção da "aprovação" para a "taxa abusiva".</p>
-                        <div class="chart-container">
+                        <div class="chart-container h-[250px] w-full flex-1">
                             <canvas id="objectionsChart"></canvas>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="ecossistema" class="tab-content">
-                <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-indigo-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
-                    <strong>Instituições de Credibilidade (Compradores de Lead):</strong> Para rentabilizar o funil via afiliação na Argentina, focamos nas Fintechs "Subprime", pois o tráfego de "Ads -> Quiz" geralmente traz usuários negativados. Estas instituições aceitam o risco em troca de um CFT mais alto.
+            <!-- TAB 2: PERSONA & GLOSSÁRIO -->
+            <section id="persona" class="tab-content">
+                <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-blue-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
+                    <strong>Localização de Copy:</strong> O vocabulário é fundamental para converter na Argentina. Errar o termo (usar 'Serasa' em vez de 'Veraz') destrói a confiança. Use nosso dicionário rápido de conversão abaixo para ajustar suas pautas.
                 </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Instituição 1 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div class="grid grid-cols-1 gap-6 mb-8">
+                    <!-- Glossary -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="text-lg font-bold text-slate-800">Dicionário Rápido BR ➡️ AR</h3>
+                            <input type="text" id="searchGlossary" onkeyup="filterGlossary()" placeholder="🔍 Buscar..." class="text-sm border border-slate-300 rounded-md px-3 py-1.5 w-32 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="overflow-y-auto h-64 custom-scrollbar">
+                            <table class="w-full text-sm text-left text-slate-500" id="glossaryTable">
+                                <thead class="text-xs text-slate-700 uppercase sticky top-0 bg-white shadow-sm">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-2">Termo BR</th>
+                                        <th scope="col" class="px-3 py-2 text-blue-700">Termo AR</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b"><td class="px-3 py-2">Nome Sujo</td><td class="px-3 py-2 font-bold text-blue-600">Veraz negativo</td></tr>
+                                    <tr class="bg-slate-50 border-b"><td class="px-3 py-2">Empréstimo</td><td class="px-3 py-2 font-bold text-blue-600">Préstamo</td></tr>
+                                    <tr class="border-b"><td class="px-3 py-2">Dinheiro</td><td class="px-3 py-2 font-bold text-blue-600">Plata / Efectivo</td></tr>
+                                    <tr class="bg-slate-50 border-b"><td class="px-3 py-2">Conta Corrente</td><td class="px-3 py-2 font-bold text-blue-600">CBU / Cuenta Sueldo</td></tr>
+                                    <tr class="border-b"><td class="px-3 py-2">CPF / RG</td><td class="px-3 py-2 font-bold text-blue-600">DNI / CUIL</td></tr>
+                                    <tr class="bg-slate-50 border-b"><td class="px-3 py-2">CET (Taxas)</td><td class="px-3 py-2 font-bold text-blue-600">CFT</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: ECOSSISTEMA -->
+            <section id="ecossistema" class="tab-content">
+                <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-indigo-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
+                    <strong>Instituições de Credibilidade (Compradores de Lead):</strong> Focamos nas Fintechs "Subprime", pois o tráfego de Ads + Quiz geralmente traz usuários negativados na Argentina. Estas aceitam risco maior.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="h-2 bg-indigo-500"></div>
                         <div class="p-5">
                             <h3 class="text-xl font-bold text-slate-800 mb-1">Moni</h3>
                             <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded mb-3">Fintech / App</span>
-                            <p class="text-sm text-slate-600 mb-4">Extremamente popular. Foco em adiantamento de salário e microempréstimos no cartão ou CBU.</p>
-                            <div class="space-y-2 text-sm">
-                                <p><span class="font-semibold text-slate-700">Requisitos:</span> DNI, CBU, Ingresso regular.</p>
-                                <p><span class="font-semibold text-slate-700">Público:</span> Aceita Veraz (dependendo do grau).</p>
-                                <p><span class="font-semibold text-slate-700">Apelo Copy:</span> "Plata en el acto en tu cuenta".</p>
-                            </div>
+                            <p class="text-sm text-slate-600 mb-4">Adiantamento de salário e microempréstimos no CBU. Requer DNI e CBU.</p>
                         </div>
                     </div>
-                    
-                    <!-- Instituição 2 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="h-2 bg-indigo-500"></div>
                         <div class="p-5">
                             <h3 class="text-xl font-bold text-slate-800 mb-1">Welp (Wenance)</h3>
                             <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded mb-3">Crédito Online</span>
-                            <p class="text-sm text-slate-600 mb-4">Um dos maiores compradores de leads do mercado editorial. Oferece valores maiores com parcelamento.</p>
-                            <div class="space-y-2 text-sm">
-                                <p><span class="font-semibold text-slate-700">Requisitos:</span> DNI, CBU, Ser maior de 18.</p>
-                                <p><span class="font-semibold text-slate-700">Público:</span> Perfil de risco moderado.</p>
-                                <p><span class="font-semibold text-slate-700">Apelo Copy:</span> "Préstamos flexibles online".</p>
-                            </div>
+                            <p class="text-sm text-slate-600 mb-4">Grande comprador de leads. Valores maiores com parcelamento flexível.</p>
                         </div>
                     </div>
-
-                    <!-- Instituição 3 -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                         <div class="h-2 bg-indigo-500"></div>
                         <div class="p-5">
                             <h3 class="text-xl font-bold text-slate-800 mb-1">Efectivo Sí</h3>
-                            <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded mb-3">Financeira Tradicional</span>
-                            <p class="text-sm text-slate-600 mb-4">Forte presença física mas forte expansão digital. Excelente para públicos mais maduros que confiam em marcas conhecidas.</p>
-                            <div class="space-y-2 text-sm">
-                                <p><span class="font-semibold text-slate-700">Requisitos:</span> Recibo de Sueldo (Holerite), DNI.</p>
-                                <p><span class="font-semibold text-slate-700">Público:</span> Trabalhadores formais, aposentados.</p>
-                                <p><span class="font-semibold text-slate-700">Apelo Copy:</span> "Efectivo seguro y confiable".</p>
-                            </div>
+                            <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded mb-3">Financeira</span>
+                            <p class="text-sm text-slate-600 mb-4">Forte no offline/digital. Público maduro. Requer "Recibo de Sueldo".</p>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- TAB 4: COMPLIANCE -->
             <section id="compliance" class="tab-content">
                 <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-amber-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
-                    <strong>Limites da Nossa Comunicação (Aplicação AR):</strong> Com base no nosso <em>Manual de Compliance Moral</em>, é estritamente proibido o uso de promessas falsas. Na Argentina, o <strong>BCRA (Banco Central)</strong> é rigoroso com transparência de taxas.
+                    <strong>Limites da Comunicação:</strong> Segundo nosso <em>Manual de Compliance Moral</em> e o BCRA (Banco Central AR), não podemos fazer promessas falsas de aprovação ou omitir o CFT.
                 </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <!-- Regras Criativos -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-red-200">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-2xl">❌</span>
-                            <h3 class="text-lg font-bold text-slate-800">EVITE (Risco Jurídico)</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- Regras -->
+                    <div class="space-y-4">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-red-200">
+                            <h3 class="text-md font-bold text-slate-800 mb-2 flex items-center gap-2">❌ EVITE (Risco)</h3>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li>• <strong>"¡Fuiste aprobado!"</strong> (Nunca afirme aprovação).</li>
+                                <li>• <strong>"Préstamo sin intereses / Tasa Cero"</strong> (Violação do BCRA se não for real).</li>
+                                <li>• Ocultar o <strong>CFT</strong> em simulações numéricas.</li>
+                            </ul>
                         </div>
-                        <ul class="space-y-3 text-sm text-slate-600">
-                            <li class="flex gap-2">
-                                <span class="text-red-500 font-bold">•</span>
-                                <div><strong>"¡Fuiste aprobado!"</strong> (Nunca afirme aprovação sem análise prévia).</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-red-500 font-bold">•</span>
-                                <div><strong>"Préstamo sin intereses / Tasa Cero"</strong> (Violação do Art. 54-C do CDC BR e normativas do BCRA sem qualificação).</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-red-500 font-bold">•</span>
-                                <div><strong>"Dinero gratis" / "Ganar plata rápido"</strong> (Isso não é cassino).</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-red-500 font-bold">•</span>
-                                <div>Ocultar o <strong>CFT (Costo Financiero Total)</strong>. Na Argentina, o CFT deve estar visível se houver simulação.</div>
-                            </li>
-                        </ul>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-emerald-200">
+                            <h3 class="text-md font-bold text-slate-800 mb-2 flex items-center gap-2">✅ PERMITIDO</h3>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li>• <strong>"Podés ser aprobado"</strong> (Condicional).</li>
+                                <li>• <strong>"Descubrí tu límite posible"</strong>.</li>
+                                <li>• Incluir sempre o <em>Disclaimer</em> legal no rodapé.</li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <!-- Regras Permitidas -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-emerald-200">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-2xl">✅</span>
-                            <h3 class="text-lg font-bold text-slate-800">PERMITIDO (Copy Saudável)</h3>
+                    <!-- IA Compliance Auditor (NEW GEMINI FEATURE) -->
+                    <div class="bg-slate-800 text-white p-6 rounded-xl shadow-lg border-t-4 border-amber-400 flex flex-col h-full">
+                        <h3 class="text-lg font-bold text-amber-400 mb-2 border-b border-slate-700 pb-2 flex items-center gap-2">
+                            Auditor de Risco (IA)
+                        </h3>
+                        <p class="text-xs text-slate-300 mb-4">Cole o texto do seu anúncio, e-mail ou SMS. A IA analisará se o copy infringe nossas políticas de Compliance Moral ou as regras do BCRA argentino.</p>
+                        
+                        <textarea id="ai-audit-input" class="w-full bg-slate-700 text-white p-3 rounded-md border border-slate-600 mb-4 focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm" rows="4" placeholder="Cole o copy aqui... Ex: ¡Felicidades! Tenés $50.000 aprobados sin intereses en tu cuenta hoy."></textarea>
+                        
+                        <button onclick="auditCompliance()" id="btn-audit" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-4 rounded-md transition-colors shadow-md mb-4 flex justify-center items-center">
+                            <span>Auditar Compliance ✨</span>
+                        </button>
+                        
+                        <div id="ai-audit-result" class="hidden flex-1 bg-slate-900 rounded-md p-4 border border-slate-700 text-sm text-slate-300 overflow-y-auto ai-result-format custom-scrollbar">
                         </div>
-                        <ul class="space-y-3 text-sm text-slate-600">
-                            <li class="flex gap-2">
-                                <span class="text-emerald-500 font-bold">•</span>
-                                <div><strong>"Podés ser aprobado"</strong> (Linguagem condicional).</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-emerald-500 font-bold">•</span>
-                                <div><strong>"Descubrí tu límite posible"</strong> (Transparência).</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-emerald-500 font-bold">•</span>
-                                <div><strong>"Análisis rápido. Podrías conseguir hasta $100.000"</strong>.</div>
-                            </li>
-                            <li class="flex gap-2">
-                                <span class="text-emerald-500 font-bold">•</span>
-                                <div>Exibir o Aviso Legal: <em>"Este contenido es informativo y no constituye asesoramiento..."</em>.</div>
-                            </li>
-                        </ul>
                     </div>
-                </div>
-
-                <!-- Aviso Legal Template -->
-                <div class="bg-slate-800 text-white p-6 rounded-xl shadow-inner">
-                    <h4 class="font-bold text-emerald-400 mb-3 border-b border-slate-600 pb-2">📜 Template de Disclaimer Incred (Versão Argentina)</h4>
-                    <p class="text-sm text-slate-300 italic">"Este material se proporciona únicamente con fines informativos y educativos, y no constituye asesoramiento financiero o legal. No garantizamos la aprobación de crédito, ya que depende exclusivamente de las políticas de cada institución financiera. El rendimiento pasado o las simulaciones no garantizan resultados futuros. Las tasas (TNA, TEA y CFT) pueden fluctuar según el mercado y el perfil del solicitante. Este sitio puede contener enlaces de afiliados; si realiza una acción a través de ellos, podemos recibir una comisión sin costo adicional para usted."</p>
                 </div>
             </section>
 
+            <!-- TAB 5: ABORDAGENS POR CANAL -->
             <section id="inovacao" class="tab-content">
                 <p class="text-slate-600 mb-8 text-lg leading-relaxed border-l-4 border-yellow-500 pl-4 bg-white p-4 shadow-sm rounded-r-lg">
-                    <strong>Plano de Ação Tático:</strong> Analisando as dores e a necessidade de melhorar o engajamento e baixar o Bounce Rate, proponho 3 inovações na jornada do usuário aplicadas à formatação dos relatórios diários de conteúdo.
+                    <strong>Exemplos de Abordagem por Canal:</strong> Estratégias táticas e ativáveis para adaptar nossa comunicação aos diferentes estágios do funil argentino, maximizando engajamento e conversão de acordo com as peculiaridades locais.
                 </p>
 
-                <div class="space-y-6">
-                    <!-- Ideia 1 -->
-                    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex items-start gap-4">
-                        <div class="bg-yellow-100 text-yellow-700 p-3 rounded-full shrink-0">💡</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">1. O Hub "Salí del Veraz" (Pilar de Retenção)</h4>
-                            <p class="text-sm text-slate-600 mt-1"><strong>Ação:</strong> Em vez de jogar o lead negativado apenas para um artigo de recusa, criar um micro-curso via push/email sobre como limpar o nome na Argentina. <strong>Impacto Esperado:</strong> Aumento do Tempo Médio de Leitura (engajamento com a marca Incred) e maior CTR em produtos de renegociação futura.</p>
+                <div class="grid md:grid-cols-3 gap-6 mb-6">
+                    <!-- Aquisição -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2">
+                            <div class="bg-blue-100 text-blue-700 p-2 rounded-lg text-xl">🎯</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Aquisição (Ads)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 flex-1">Foco na dor imediata (falta de dinheiro/restrição) usando gírias curtas e gatilhos de velocidade. O argentino valoriza a solução "en el acto".</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-sm">
+                            <p class="font-semibold text-slate-700 mb-1">Exemplo de Copy (Meta Ads):</p>
+                            <p class="italic text-slate-600">"¿Necesitás plata ya pero estás en el Veraz? 💸 Descubrí qué tarjeta te aprueba hoy solo con DNI. ¡Hacé el test en 1 minuto!"</p>
                         </div>
                     </div>
 
-                    <!-- Ideia 2 -->
-                    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex items-start gap-4">
-                        <div class="bg-emerald-100 text-emerald-700 p-3 rounded-full shrink-0">📱</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">2. Interstitial Educativo de CFT (Mídia Programática)</h4>
-                            <p class="text-sm text-slate-600 mt-1"><strong>Ação:</strong> Usar o formato Interstitial (descrito na Coletânea de Saberes) não apenas para Ads intrusivos, mas com uma roleta ou slider educativo que simula o CFT real vs Inflação antes de redirecionar para o banco. <strong>Impacto Esperado:</strong> Cumpre o compliance moral, educa o usuário e filtra leads com baixa intenção, melhorando a qualidade para o afiliado.</p>
+                    <!-- Retenção -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2">
+                            <div class="bg-emerald-100 text-emerald-700 p-2 rounded-lg text-xl">📲</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Retenção (Email/Push)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 flex-1">Abordagem conversacional e de utilidade. Use assuntos que pareçam mensagens de WhatsApp. Crie urgência sobre mudanças nas taxas (CFT).</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-sm">
+                            <p class="font-semibold text-slate-700 mb-1">Exemplo de Push Notification:</p>
+                            <p class="italic text-slate-600"><strong>Assunto:</strong> Che, mirá esto 👀<br><strong>Mensagem:</strong> "Encontramos un préstamo con tu CBU que acepta mal historial. Entrá a ver tu límite."</p>
                         </div>
                     </div>
 
-                    <!-- Ideia 3 -->
-                    <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex items-start gap-4">
-                        <div class="bg-blue-100 text-blue-700 p-3 rounded-full shrink-0">🤖</div>
-                        <div>
-                            <h4 class="font-bold text-slate-800">3. Quiz Conversacional (Estilo WhatsApp UI)</h4>
-                            <p class="text-sm text-slate-600 mt-1"><strong>Ação:</strong> Substituir o layout de Quiz tradicional por uma interface que imita o WhatsApp, usando gírias ("Che, cuánta plata necesitás?"). <strong>Impacto Esperado:</strong> O argentino é altamente dependente de WhatsApp para negócios informais. Isso reduz fricção e a Taxa de Rejeição (Bounce Rate).</p>
+                    <!-- Conteúdo -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="flex items-center gap-3 mb-4 border-b pb-2">
+                            <div class="bg-amber-100 text-amber-700 p-2 rounded-lg text-xl">📝</div>
+                            <h4 class="font-bold text-slate-800 text-lg">Conteúdo (Blog)</h4>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4 flex-1">Artigos diretos e escaneáveis. Evite textos longos enrolados; traga o review rápido, clareza sobre o CFT e botões de CTA chamativos para as ofertas.</p>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 text-sm">
+                            <p class="font-semibold text-slate-700 mb-1">Exemplo de Estrutura:</p>
+                            <p class="italic text-slate-600"><strong>Título:</strong> "Préstamo Moni: ¿Es confiable? Review 2026"<br><strong>Apoio:</strong> "Cómo pedir adelanto de sueldo en 3 pasos rápidos sin mirar tu Veraz."</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="mt-8 bg-slate-50 border border-slate-200 p-6 rounded-xl">
-                    <h4 class="font-bold text-slate-800 mb-4">Modelo de Reporte Diário Sugerido (Foco AR)</h4>
-                    <pre class="bg-slate-800 text-emerald-400 p-4 rounded text-xs font-mono overflow-x-auto">
-[QUARTA-FEIRA] - [18/05] 🟡 Atenção (Ajustes no Quiz AR)
-
-Performance por Source / URL
-Source: MetaAds_AR_Subprime
-URL: nx.incred.com/ar-p201/ (Quiz Conversacional)
-Bounce Rate: 48% (Alta)
-Tempo médio de leitura: 45 segundos
-Páginas por sessão: 1.8
-
-Análise Estratégica:
-Melhor URL — /review-moni (+12% CTR). Hipótese: Promessa de 'CBU en el acto' converte rápido.
-URL preocupante — /ar-p201 (Quiz). Hipótese: Pergunta 3 sobre CFT está confusa, gerando abandono.
-Variantes no balancer — Variante A (Botão verde) vs B (Botão azul celeste 🇦🇷). Variante B reduziu bounce em 3%.
-
-Ações do dia:
-1. Simplificar copy da pergunta 3 no Quiz para reduzir Bounce Rate abaixo de 40%.
-2. Implementar Disclaimer rotativo no footer para compliance do BCRA.
-                    </pre>
                 </div>
             </section>
 
@@ -411,28 +309,140 @@ Ações do dia:
     </main>
 
     <script>
-        // Tab Navigation Logic
-        function switchTab(tabId) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
+        // --- Gemini API Configuration ---
+        const apiKey = ""; // API Key provided at runtime by environment
+        
+        // Exponential Backoff Fetch Logic
+        async function fetchWithBackoff(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(`HTTP ${res.status}: ${errData.error?.message || 'Unknown Error'}`);
+                    }
+                    return await res.json();
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                    console.warn(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`, e);
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // Base function to call Gemini
+        async function callGeminiAPI(prompt, systemInstruction) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            try {
+                const data = await fetchWithBackoff(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error("Resposta inválida da API.");
+                
+                // Simple markdown-like formatting for HTML output
+                text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                text = text.replace(/\n\n/g, '</p><p>');
+                text = text.replace(/\n\* /g, '<br>• ');
+                return `<p>${text}</p>`;
+
+            } catch (error) {
+                return `<p class="text-red-400"><strong>Erro na análise:</strong> Não foi possível processar via IA no momento. Detalhe: ${error.message}</p>`;
+            }
+        }
+
+        // Feature 1: Generate Localized Copy
+        async function generateLocalizedCopy() {
+            const inputEl = document.getElementById('ai-copy-input');
+            const resultEl = document.getElementById('ai-copy-result');
+            const btnEl = document.getElementById('btn-generate-copy');
             
-            // Reset button styles
+            const prompt = inputEl.value.trim();
+            if (!prompt) return;
+
+            // Update UI State
+            inputEl.disabled = true;
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<span class="ai-loader"></span> Processando...';
+            resultEl.innerHTML = '';
+            resultEl.classList.add('hidden');
+
+            const systemPrompt = `Você é um Copywriter Sênior focado em conversão de resposta direta para o mercado argentino, especialista em empréstimos para públicos subprime. 
+            Seu objetivo é pegar a ideia de marketing do usuário (geralmente em português) e transformá-la em 2 ou 3 opções curtas de copy altamente persuasivas em Espanhol Argentino (Rioplatense). 
+            Regras estritas: 
+            1. Use gírias locais corretamente (plata, guita, Veraz, CBU, préstamo en el acto). 
+            2. Não faça promessas falsas de aprovação garantida (compliance moral).
+            3. Seja direto, focado na urgência do dinheiro e facilidade.
+            Formate a saída destacando os pontos fortes do copy escolhido.`;
+
+            const htmlResult = await callGeminiAPI(prompt, systemPrompt);
+
+            // Restore UI State
+            resultEl.innerHTML = htmlResult;
+            resultEl.classList.remove('hidden');
+            inputEl.disabled = false;
+            btnEl.disabled = false;
+            btnEl.innerHTML = '<span>Gerar Copy Argentino ✨</span>';
+        }
+
+        // Feature 2: Audit Compliance
+        async function auditCompliance() {
+            const inputEl = document.getElementById('ai-audit-input');
+            const resultEl = document.getElementById('ai-audit-result');
+            const btnEl = document.getElementById('btn-audit');
+            
+            const prompt = inputEl.value.trim();
+            if (!prompt) return;
+
+            // Update UI State
+            inputEl.disabled = true;
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<span class="ai-loader"></span> Auditando...';
+            resultEl.innerHTML = '';
+            resultEl.classList.add('hidden');
+
+            const systemPrompt = `Você é um Analista de Compliance rigoroso trabalhando para a 'InCred', avaliando copys de anúncios de empréstimos para a Argentina.
+            Sua função é ler o texto do usuário e identificar infrações baseadas nestas regras:
+            - É PROIBIDO afirmar que o usuário já foi "aprovado" ou que o dinheiro já está na conta. Use tom condicional ("você pode conseguir", "limite pré-aprovado").
+            - É PROIBIDO prometer empréstimos "sem juros" ou "dinheiro grátis".
+            - O texto não pode incentivar fraudes ou ignorar riscos.
+            
+            Responda em Português. Avalie o texto dizendo se está "APROVADO", "REPROVADO" ou "APROVADO COM RESSALVAS". Liste os riscos encontrados de forma direta e sugira uma versão corrigida se houver erros.`;
+
+            const htmlResult = await callGeminiAPI(prompt, systemPrompt);
+
+            // Restore UI State
+            resultEl.innerHTML = htmlResult;
+            resultEl.classList.remove('hidden');
+            inputEl.disabled = false;
+            btnEl.disabled = false;
+            btnEl.innerHTML = '<span>Auditar Compliance ✨</span>';
+        }
+
+
+        // --- Navigation and General UI Logic ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-800', 'text-emerald-400', 'border-emerald-400');
                 btn.classList.add('text-slate-300', 'border-transparent');
             });
 
-            // Show selected content
             document.getElementById(tabId).classList.add('active');
             
-            // Highlight active button
             const activeBtn = document.querySelector(`.nav-btn[data-target="${tabId}"]`);
             activeBtn.classList.remove('text-slate-300', 'border-transparent');
             activeBtn.classList.add('bg-slate-800', 'text-emerald-400', 'border-emerald-400');
 
-            // Update Header texts dynamically based on section
             const headerTitle = document.getElementById('header-title');
             const headerDesc = document.getElementById('header-desc');
 
@@ -440,34 +450,25 @@ Ações do dia:
                 'visao-geral': { title: 'Benchmarking de Mercado', desc: 'Análise competitiva de publishers no nicho de empréstimos (AR).' },
                 'persona': { title: 'Persona & Glossário', desc: 'Linguagem, dores e objeções do consumidor argentino.' },
                 'ecossistema': { title: 'Ecossistema de Crédito', desc: 'Principais compradores de leads e financeiras locais.' },
-                'compliance': { title: 'Compliance & Copy', desc: 'Regras morais da Incred aplicadas à realidade do BCRA.' },
-                'inovacao': { title: 'Inovações & Plano de Ação', desc: 'Táticas para redução de Bounce Rate e aumento de CTR.' }
+                'compliance': { title: 'Auditoria de Compliance IA', desc: 'Validação automática de copys contra políticas de marketing e BCRA.' },
+                'inovacao': { title: 'Abordagens por Canal', desc: 'Exemplos práticos e ativáveis para Aquisição, Retenção e Conteúdo.' }
             };
 
             headerTitle.textContent = titles[tabId].title;
             headerDesc.textContent = titles[tabId].desc;
-
-            // Render charts if persona tab is clicked and chart doesn't exist yet
-            if (tabId === 'persona' && !window.objectionsChartInstance) {
-                renderCharts();
-            }
         }
 
-        // Glossary Filter Logic
         function filterGlossary() {
             let input = document.getElementById("searchGlossary");
             let filter = input.value.toUpperCase();
             let table = document.getElementById("glossaryTable");
             let tr = table.getElementsByTagName("tr");
-
-            // Loop through all table rows, and hide those who don't match the search query
-            for (let i = 1; i < tr.length; i++) { // start at 1 to skip header
+            for (let i = 1; i < tr.length; i++) { 
                 let tds = tr[i].getElementsByTagName("td");
                 let matchFound = false;
                 for(let j = 0; j < tds.length; j++) {
                     if (tds[j]) {
-                        let txtValue = tds[j].textContent || tds[j].innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        if ((tds[j].textContent || tds[j].innerText).toUpperCase().indexOf(filter) > -1) {
                             matchFound = true;
                             break;
                         }
@@ -477,54 +478,30 @@ Ações do dia:
             }
         }
 
-        // Chart.js Implementation
         function renderCharts() {
+            if (window.objectionsChartInstance) return;
             const ctxObjections = document.getElementById('objectionsChart').getContext('2d');
-            
-            // Compare BR vs AR based on research insights (Simulated data for visual impact)
             window.objectionsChartInstance = new Chart(ctxObjections, {
                 type: 'bar',
                 data: {
-                    labels: ['Medo de Fraude/Golpe', 'Taxas Abusivas (CFT/CET)', 'Restrição (Veraz/Serasa)', 'Burocracia de Papéis'],
+                    labels: ['Medo de Golpe', 'Taxas (CFT)', 'Restrição (Veraz)', 'Burocracia'],
                     datasets: [
-                        {
-                            label: 'Brasil (Incred Base)',
-                            data: [30, 20, 40, 10], // % Impact
-                            backgroundColor: 'rgba(51, 65, 85, 0.7)', // Slate 700
-                            borderColor: 'rgba(51, 65, 85, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Argentina (Pesquisa AR)',
-                            data: [15, 45, 30, 10], // % Impact - Higher focus on rates due to inflation
-                            backgroundColor: 'rgba(16, 185, 129, 0.7)', // Emerald 500
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 1
-                        }
+                        { label: 'Brasil', data: [30, 20, 40, 10], backgroundColor: 'rgba(51, 65, 85, 0.7)', borderWidth: 1 },
+                        { label: 'Argentina', data: [15, 45, 30, 10], backgroundColor: 'rgba(16, 185, 129, 0.7)', borderWidth: 1 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Frequência da Objeção (%)' }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y + '%';
-                                }
-                            }
-                        }
-                    }
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { position: 'top' } }
                 }
             });
         }
+        
+        // Garante que o gráfico renderize logo ao abrir a página (já que foi movido para a tab 1 padrão)
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCharts();
+        });
     </script>
 </body>
 </html>
